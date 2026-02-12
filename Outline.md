@@ -1,6 +1,6 @@
 ## Data
 Frequency: monthly
-Timeframe: 2014-2019 (include Covid with control for robustness)
+Timeframe: 1992-2019 (include Covid with control for robustness)
 Sources: FRED, Statscan, World Bank, BIS
 
 ## Baseline Model
