@@ -45,4 +45,3 @@ get_fred_data <- function(series, freq = c("m"), start, end) {
 }
 
 us_var_data <- get_fred_data(series = series, "1985-01-01", "2019-01-01")
-
