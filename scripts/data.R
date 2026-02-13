@@ -43,7 +43,6 @@ get_fred_data <- function(series, freq = c("m"), start, end) {
     return(data_clean)
 }
 
-us_var_data <- get_fred_data(series = series, "1985-01-01", "2019-01-01")
 stationarity_check <- function(df, lag = 1, order = 1) {
     #' Automated stationarity checks for time-series data
     #' 
