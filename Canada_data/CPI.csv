@@ -1,17 +1,3 @@
-﻿"TERMS AND CONDITIONS"
-"https://www.bankofcanada.ca/terms/"
-
-"SERIES"
-"id","label","description"
-"ATOM_V41693242","CPIX, Percentage Change over 1 year ago (unadjusted)","The CPI excluding eight of the most volatile components (fruit, vegetables, gasoline, fuel oil, natural gas, mortgage interest, inter-city transportation and tobacco products) as well as the effect of changes in indirect taxes on the remaining components."
-"CPIW","CPIW, Percentage Change over 1 year ago (unadjusted)","CPIW adjusts each CPI basket weight by a factor that is inversely proportional to the component's variability and is adjusted to exclude the effect of changes in indirect taxes."
-"CPI_COMMON","CPI-common","CPI-common"
-"CPI_MEDIAN","CPI-median","CPI-median"
-"CPI_TRIM","CPI-trim","CPI-trim"
-"STATIC_CPIXFET","CPI-XFET, Percentage Change over 1 year ago (unadjusted)","The CPI excluding food, energy and the effect of changes in indirect taxes."
-"STATIC_TOTALCPICHANGE","Total CPI, Percentage Change over 1 year ago (unadjusted)","Total CPI, Percentage Change over 1 year ago (unadjusted)"
-
-"OBSERVATIONS"
 "date","ATOM_V41693242","CPIW","CPI_COMMON","CPI_MEDIAN","CPI_TRIM","STATIC_CPIXFET","STATIC_TOTALCPICHANGE"
 "1995-01-01","","1.7","1.1","1.7","1.8","2.2","0.6"
 "1995-02-01","","1.7","1.2","1.8","1.8","1.8","1.9"
@@ -385,3 +371,4 @@
 "2025-10-01","2.9","3.0","2.7","3.0","3.0","2.7","2.2"
 "2025-11-01","2.9","3.0","2.8","2.8","2.9","2.4","2.2"
 "2025-12-01","2.8","3.2","2.8","2.5","2.7","2.4","2.4"
+
