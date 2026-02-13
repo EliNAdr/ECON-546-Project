@@ -8,7 +8,7 @@ rGDP: https://fred.stlouisfed.org/series/NGDPRSAXDCCAQ
 
 BOC overnight rate: https://fred.stlouisfed.org/series/IRSTCB01CAM156N
 
-Unemployment rate: https://fred.stlouisfed.org/series/LRUN64TTCAM156S
+Unemployment rate: https://fred.stlouisfed.org/series/LRUN64TTCAM156S 
 
 ### Expanded model only
 
