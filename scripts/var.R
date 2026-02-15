@@ -1,63 +1,82 @@
 library(vars)
+library(ggplot2)
 source("./scripts/data.R")
 
 series <- c("INDPRO", "UNRATE", "MEDCPIM158SFRBCLE", "FEDFUNDS", "WTISPLC")
 us_var_data <- get_fred_data(series = series, start = "1985-01-01", end = "2019-01-01")
 us_var_data_stn <- stationarity_check(us_var_data, lag = 1, order = 1)
 
-get_var_irf <- function(y_t, p_max, ortho = FALSE, k_steps, 
-                        plot = FALSE, which_var = NULL) {
-    #' Wrapper function to fit a VAR model with automatic lag selection
+get_var_irf <- function(mod, shock, resp = NULL, ortho = FALSE, horizon, plot = FALSE) {
+    #' Wrapper function to get impulse responses from a VAR model
     #' 
-    #' Fits a VAR model for the supplied matrix Y_t with lag length automatically determined 
-    #' via AIC and returns impulse response functions
+    #' Computes impulse responses for a specified VAR model, aggregates the results
+    #' into a dataframe and returns plots of the IRFs if required.
     #' 
-    #' @param y_t Dataframe containing endogenous variables for the VAR
-    #' @param p_max Maximum number of lags to consider for lag selection
-    #' @param ortho Whether to compute orthogonalised shocks. FALSE by default.
-    #' @param k_steps Time horizon k for the impulse responses
-    #' @param plot Return plots of computed impulse responses?
-    #' @param which_var Variable to return impulse responses for
-    #' @return A list containing criteria for lag selection, fitted coefficients, and impulse responses
+    #' @param mod Object of class 'varest'; a fitted VAR model
+    #' @param shock A string indicating the variable to shock when computing IRFs
+    #' @param resp A character vector indicating the variable(s) for which to calculate impulses responses
+    #' @param ortho Whether to compute orthogonalised shocks; FALSE by default
+    #' @param horizon Time horizon for the impulse responses; choose wisely
+    #' @param plot Return plots of computed impulse responses? FALSE by default
+    #' @return A list containing a dataframe of impulse responses and an optional ggplot2 object
     #' @examples
-    #' get_var_irf(y_t = us_var_data, max_lag = 10, k_steps = 12)
+    #' get_var_irf(mod = var_mod, shock = "FEDFUNDS", resp = "INDPRO", horizon = 12)
     
     # preliminary check
-    if (is.data.frame(y_t) != TRUE) {
-        stop("y_t must be a data frame")
+    if (class(mod) != "varest") {
+        stop("model provided must be of class 'varest'")
     }
 
-    # run lag selection via AIC
-    lagselect <- VARselect(y_t, lag.max = p_max)
-    optim_lag <- lagselect$selection[1]
-
-    # fit VAR with optimal lag length
-    mod <- VAR(y_t, p = optim_lag)
-    irf <- irf(mod, ortho = ortho, n.ahead = k_steps)$irf
-
-    # collect results
-    out <- list(
-        lag_selection = lagselect$criteria,
-        var_coefs = mod$varresults,
-        irf = irf)
+    # compute IRFs
+    irf_out <- irf(mod, impulse = shock, response = resp, ortho = ortho,
+                   n.ahead = horizon)
     
+    # extract IRF coefficients and CI bands and collapse to dataframe
+    irf_to_df <- function(irf_obj) {
+        df <- purrr::map_df(names(irf_obj$irf), function(shock) {
+            irfs <- irf_obj$irf[[shock]]
+            lower <- irf_obj$Lower[[shock]]
+            upper <- irf_obj$Upper[[shock]]
+            
+            purrr::map_df(seq_len(ncol(irfs)), function(j) {
+                tibble::tibble(
+                    horizon = 0:(nrow(irfs) - 1),
+                    shock = shock,
+                    response = colnames(irfs)[j],
+                    coefficient = as.numeric(irfs[, j]),
+                    lower = as.numeric(lower[, j]),
+                    upper = as.numeric(upper[, j])
+                )
+            })
+        })
+        return(df)
+    }
+
+    out <- list(irf = irf_to_df(irf_out))
+
+    # generate plot of IRFs if required
     if (plot == TRUE) {
-        irf_data <- irf[[which_var]] |> 
-            as.data.frame() |>
-            pivot_longer(cols = c(colnames(y_t)),
-                names_to = "variable",
-                values_to = "value") |>
-            dplyr::mutate(t = rep(c(1:(k_steps+1)), length(colnames(y_t))))
-        
-        irf_plot <- ggplot2::ggplot(
-            data = irf_data, aes(x = t, y = value)) +
-            geom_line(linewidth = 1.2, color = "black") + 
-            facet_wrap(~ variable)
-        
-        out$plot <- irf_plot
+        chart <- ggplot(
+            data = out$irf, aes(x = horizon)
+        ) +
+            geom_hline(
+                yintercept = 0.0, linetype = "dashed"
+        ) +
+            geom_line(
+                aes(y = coefficient), linewidth = 1.2, color = "blue"
+        ) +
+            geom_line(
+                aes(y = lower), linewidth = 1.0, linetype = "dashed"
+        ) +
+            geom_line(
+                aes(y = upper), linewidth = 1.0, linetype = "dashed"
+        ) +
+            facet_wrap(~ response, ncol = 1)
+    
+        out$irf_chart <- chart
     }
     return(out)
 }
 
-test <- get_var_irf(y_t = us_var_data[, 2:5], p_max = 10, k_steps = 12, 
-                    ortho = TRUE, plot = TRUE, which_var = "FEDFUNDS")
+mod <- VAR(us_var_data[, 2:5], p = 6)
+mod_irf <- get_var_irf(mod, shock = "FEDFUNDS", resp = c("UNRATE"), ortho = TRUE, horizon = 12, plot = TRUE)
