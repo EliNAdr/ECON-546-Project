@@ -3,6 +3,7 @@ library(vars)
 library(BVAR)
 library(here)
 library(tseries)
+library(dplyr)
 
 # loading data
 rate <- read.csv(here("Canada_data", "BOC_rate.csv"))
@@ -30,5 +31,3 @@ basic_ts <- diff(basic_ts)
 #print(adf.test(basic_ts[,"CPI_MEDIAN"]))
 
 # var model
-var_model <- VAR(basic_ts, ic = "AIC", lag.max = 12)
-print(var_model)
