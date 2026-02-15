@@ -28,7 +28,7 @@ get_var_irf <- function(mod, shock, resp = NULL, ortho = FALSE, horizon, plot = 
     }
 
     # compute IRFs
-    irf_out <- irf(mod, impulse = shock, response = resp, ortho = ortho,
+    irf_out <- vars::irf(mod, impulse = shock, response = resp, ortho = ortho,
                    n.ahead = horizon)
     
     # extract IRF coefficients and CI bands and collapse to dataframe
@@ -80,3 +80,6 @@ get_var_irf <- function(mod, shock, resp = NULL, ortho = FALSE, horizon, plot = 
 
 mod <- VAR(us_var_data[, 2:5], p = 6)
 mod_irf <- get_var_irf(mod, shock = "FEDFUNDS", resp = c("UNRATE"), ortho = TRUE, horizon = 12, plot = TRUE)
+
+canada_irf <- get_var_irf(var_model, shock = "overnight_rate", resp = c("unemp_rate", "log_real_GDP", "CPI_MEDIAN"), 
+                          ortho = TRUE, horizon = 12, plot = TRUE)
