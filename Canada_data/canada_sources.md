@@ -12,3 +12,10 @@ Unemployment rate: https://fred.stlouisfed.org/series/LRUN64TTCAM156S
 
 ### Expanded model only
 
+Canada-US exchange rate: https://fred.stlouisfed.org/series/DEXCAUS
+
+WTI oil prices: https://fred.stlouisfed.org/series/WTISPLC
+
+Inflation expectations:
+
+Excess bond returns:
