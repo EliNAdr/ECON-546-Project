@@ -23,7 +23,7 @@ get_var_irf <- function(mod, shock, resp = NULL, ortho = FALSE, horizon, plot = 
     }
 
     # compute IRFs
-    irf_out <- vars::irf(mod, impulse = shock, response = resp, ortho = ortho,
+    irf_out <- irf(mod, impulse = shock, response = resp, ortho = ortho,
                    n.ahead = horizon)
     
     # extract IRF coefficients and CI bands and collapse to dataframe
@@ -66,7 +66,7 @@ get_var_irf <- function(mod, shock, resp = NULL, ortho = FALSE, horizon, plot = 
             geom_line(
                 aes(y = upper), linewidth = 1.0, linetype = "dashed"
         ) +
-            facet_wrap(~ response, ncol = 1)
+            facet_wrap(~ response, ncol = 1, scales = "free_y")
     
         out$irf_chart <- chart
     }
