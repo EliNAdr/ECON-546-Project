@@ -1,7 +1,7 @@
 library(vars)
 library(ggplot2)
 
-get_var_irf <- function(mod, shock, resp = NULL, ortho = FALSE, horizon, plot = FALSE) {
+get_var_irf <- function(mod, shock, resp = NULL, ortho = TRUE, horizon, plot = FALSE) {
     #' Wrapper function to get impulse responses from a VAR model
     #' 
     #' Computes impulse responses for a specified VAR model, aggregates the results
@@ -10,7 +10,7 @@ get_var_irf <- function(mod, shock, resp = NULL, ortho = FALSE, horizon, plot = 
     #' @param mod Object of class 'varest'; a fitted VAR model
     #' @param shock A string indicating the variable to shock when computing IRFs
     #' @param resp A character vector indicating the variable(s) for which to calculate impulses responses
-    #' @param ortho Whether to compute orthogonalised shocks; FALSE by default
+    #' @param ortho Whether to compute orthogonalised shocks; TRUE by default
     #' @param horizon Time horizon for the impulse responses; choose wisely
     #' @param plot Return plots of computed impulse responses? FALSE by default
     #' @return A list containing a dataframe of impulse responses and an optional ggplot2 object

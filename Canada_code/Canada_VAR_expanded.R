@@ -29,9 +29,12 @@ basic_data <- merged_data[c("WTISPLC", "log_real_GDP","CPI_MEDIAN", "unemp_rate"
 basic_data$log_real_GDP <- c(NA, diff(basic_data$log_real_GDP))
 basic_data$CAD2USD <- c(NA, diff(basic_data$CAD2USD))
 basic_data$WTISPLC <- c(NA, diff(basic_data$WTISPLC))
+basic_data$unemp_rate <- c(NA, diff(basic_data$unemp_rate))
 
 basic_ts <- ts(basic_data, start = c(1997, 1), end = c(2020, 1), frequency = 12)
 basic_ts <-  na.omit(basic_ts)
+
+#plot(basic_ts)
 
 # var model & IRFs
 var_model <- VAR(basic_ts[, c("log_real_GDP", "CPI_MEDIAN", "unemp_rate", "CAD2USD", "overnight_rate")], type = "const", p = 12, exogen =  basic_ts[, "WTISPLC"])
