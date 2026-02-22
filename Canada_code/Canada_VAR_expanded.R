@@ -24,7 +24,10 @@ merged_data <- merge(merged_data, exch, by = "date")
 merged_data <- merge(merged_data, oil, by = "date")
 
 merged_data$log_real_GDP <- log(merged_data$rGDP)
-basic_data <- merged_data[c("WTISPLC", "log_real_GDP","CPI_MEDIAN", "unemp_rate", "CAD2USD", "overnight_rate")]
+merged_data$GFC <- ifelse(as.Date(merged_data$date) >= as.Date("2007-01-01") & merged_data$date <= as.Date("2009-12-31"), 1, 0)
+merged_data$GFCt <- merged_data$GFC * as.numeric(difftime(merged_data$date, as.Date("2007-01-01"), units = "days")) / 30
+
+basic_data <- merged_data[c("WTISPLC", "log_real_GDP","CPI_MEDIAN", "unemp_rate", "CAD2USD", "overnight_rate", "GFC", "GFCt")]
 
 basic_data$log_real_GDP <- c(NA, diff(basic_data$log_real_GDP))
 basic_data$CAD2USD <- c(NA, diff(basic_data$CAD2USD))
@@ -37,7 +40,10 @@ basic_ts <-  na.omit(basic_ts)
 #plot(basic_ts)
 
 # var model & IRFs
+#var_model <- VAR(basic_ts[, c("log_real_GDP", "CPI_MEDIAN", "unemp_rate", "CAD2USD", "overnight_rate")], type = "const", p = 12, exogen =  basic_ts[, c("WTISPLC", "GFC", "GFCt")])
 var_model <- VAR(basic_ts[, c("log_real_GDP", "CPI_MEDIAN", "unemp_rate", "CAD2USD", "overnight_rate")], type = "const", p = 12, exogen =  basic_ts[, "WTISPLC"])
 #print(var_model)
 irf_results <- get_var_irf(var_model, shock = "overnight_rate", resp = c("log_real_GDP", "CPI_MEDIAN", "unemp_rate", "CAD2USD", "overnight_rate"), ortho = TRUE, horizon = 36, plot = TRUE)
 print(irf_results$irf_chart)
+
+ggsave(irf_results$irf_chart, filename = here("Canada_ext_12mth_irf.png"))
