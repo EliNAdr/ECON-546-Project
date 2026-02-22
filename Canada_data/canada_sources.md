@@ -15,5 +15,3 @@ Unemployment rate: https://fred.stlouisfed.org/series/LRUN64TTCAM156S
 Canada-US exchange rate: https://fred.stlouisfed.org/series/DEXCAUS
 
 WTI oil prices: https://fred.stlouisfed.org/series/WTISPLC
-
-Inflation expectations: https://www.bankofcanada.ca/rates/indicators/capacity-and-inflation-pressures/expectations/
