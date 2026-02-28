@@ -71,4 +71,4 @@ stationarity_check <- function(df, lag = 1, order = 1) {
     }
     df <- na.omit(df) # drop first NA row
     return(df)
-}
+    }
