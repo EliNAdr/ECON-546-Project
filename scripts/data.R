@@ -41,34 +41,39 @@ get_fred_data <- function(series, freq = c("m"), start, end) {
     return(data_clean)
 }
 
-stationarity_check <- function(df, lag = 1, order = 1) {
-    #' Automated stationarity checks for time-series data
-    #' 
-    #' Checks dataframe containing time-series variables for stationarity via an ADF test
-    #' and applies first-differencing for nonstationary variables
-    #' 
-    #' @param df A dataframe containing time-series data
-    #' @param lag The lag to use if applying differencing
-    #' @param diff The order of difference to use 
-    #' @return A filtered dataframe
-    #' @examples
-    #' stationarity_check(var_data, lag = 1, diff = 1)
-    
-    # preliminary check
-    if (is.data.frame(df) != TRUE) {
-        stop("df must be a dataframe")
+stationarity_check <- function(df, lag = 1, order = 1,
+                               keep_levels = c("UNRATE", "FEDFUNDS")) {
+
+  if (!is.data.frame(df)) stop("df must be a dataframe")
+
+  diffed <- c()
+  levels <- c()
+
+  cols <- colnames(df[, -1])
+
+  for (col in cols) {
+
+    # Force some variables to stay in levels
+    if (col %in% keep_levels) {
+      levels <- c(levels, col)
+      next
     }
 
-    # check columns iteratively for stationarity
-    cols <- colnames(df[, -1])
-    for (col in cols) {
-        res <- tseries::adf.test(df[[col]])
-        if (res$p.value >= 0.05) {
-            df[[col]] <- collapse::fdiff(df[[col]], n = lag, diff = order, fill = NA)
-        } else {
-            df[[col]] <- df[[col]]
-        }
+    # Otherwise use ADF decision
+    res <- tseries::adf.test(df[[col]])
+    if (res$p.value >= 0.05) {
+      df[[col]] <- collapse::fdiff(df[[col]], n = lag, diff = order, fill = NA)
+      diffed <- c(diffed, col)
+    } else {
+      levels <- c(levels, col)
     }
-    df <- na.omit(df) # drop first NA row
-    return(df)
-    }
+  }
+
+  df <- na.omit(df)
+
+  return(list(
+    data = df,
+    differenced = diffed,
+    levels = levels
+  ))
+}
