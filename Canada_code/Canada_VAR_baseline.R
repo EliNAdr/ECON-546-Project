@@ -30,7 +30,15 @@ basic_ts <-  na.omit(basic_ts)
 
 # var model & IRFs
 var_model <- VAR(basic_ts, type = "const", p = 12)
+colnames(var_model$y) <- c(
+  "Real GDP",
+  "CPI Median Inflation (YoY)",
+  "Unemployment Rate",
+  "BoC Policy Rate"
+)
+
 #print(var_model)
-irf_results <- get_var_irf(var_model, shock = "overnight_rate", resp = c("log_real_GDP", "CPI_MEDIAN", "unemp_rate", "overnight_rate"), ortho = TRUE, horizon = 36, plot = TRUE)
+irf_results <- get_var_irf(var_model, shock = "BoC Policy Rate", resp = c("Real GDP", "CPI Median Inflation (YoY)", "Unemployment Rate", "BoC Policy Rate"), ortho = TRUE, horizon = 36, plot = TRUE)
 print(irf_results$irf_chart)
+
 ggsave(irf_results$irf_chart, filename = here("Canada_base_12mth_irf.png"))

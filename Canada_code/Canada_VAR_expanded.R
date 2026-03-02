@@ -37,13 +37,19 @@ basic_data$unemp_rate <- c(NA, diff(basic_data$unemp_rate))
 basic_ts <- ts(basic_data, start = c(1997, 1), end = c(2020, 1), frequency = 12)
 basic_ts <-  na.omit(basic_ts)
 
-#plot(basic_ts)
-
 # var model & IRFs
 #var_model <- VAR(basic_ts[, c("log_real_GDP", "CPI_MEDIAN", "unemp_rate", "CAD2USD", "overnight_rate")], type = "const", p = 12, exogen =  basic_ts[, c("WTISPLC", "GFC", "GFCt")])
 var_model <- VAR(basic_ts[, c("log_real_GDP", "CPI_MEDIAN", "unemp_rate", "CAD2USD", "overnight_rate")], type = "const", p = 12, exogen =  basic_ts[, "WTISPLC"])
+colnames(var_model$y) <- c(
+  "Real GDP",
+  "CPI Median Inflation (YoY)",
+  "Unemployment Rate",
+  "CAD to USD Exchange Rate",
+  "BoC Policy Rate"
+)
+
 #print(var_model)
-irf_results <- get_var_irf(var_model, shock = "overnight_rate", resp = c("log_real_GDP", "CPI_MEDIAN", "unemp_rate", "CAD2USD", "overnight_rate"), ortho = TRUE, horizon = 36, plot = TRUE)
+irf_results <- get_var_irf(var_model, shock = "BoC Policy Rate", resp = c("Real GDP", "CPI Median Inflation (YoY)", "Unemployment Rate", "CAD to USD Exchange Rate", "BoC Policy Rate"), ortho = TRUE, horizon = 36, plot = TRUE)
 print(irf_results$irf_chart)
 
 ggsave(irf_results$irf_chart, filename = here("Canada_ext_12mth_irf.png"))
