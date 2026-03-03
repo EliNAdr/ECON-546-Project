@@ -1,0 +1,77 @@
+library(vars)
+library(ggplot2)
+
+get_var_irf <- function(mod, shock, resp = NULL, ortho = TRUE, horizon, plot = FALSE) {
+    #' Wrapper function to get impulse responses from a VAR model
+    #' 
+    #' Computes impulse responses for a specified VAR model, aggregates the results
+    #' into a dataframe and returns plots of the IRFs if required.
+    #' 
+    #' @param mod Object of class 'varest'; a fitted VAR model
+    #' @param shock A string indicating the variable to shock when computing IRFs
+    #' @param resp A character vector indicating the variable(s) for which to calculate impulses responses
+    #' @param ortho Whether to compute orthogonalised shocks; TRUE by default
+    #' @param horizon Time horizon for the impulse responses; choose wisely
+    #' @param plot Return plots of computed impulse responses? FALSE by default
+    #' @return A list containing a dataframe of impulse responses and an optional ggplot2 object
+    #' @examples
+    #' get_var_irf(mod = var_mod, shock = "FEDFUNDS", resp = "INDPRO", horizon = 12)
+    
+    # preliminary check
+    if (class(mod) != "varest") {
+        stop("model provided must be of class 'varest'")
+    }
+
+    # compute IRFs
+    irf_out <- vars::irf(mod, impulse = shock, response = resp, ortho = ortho,
+                   n.ahead = horizon)
+    
+    # extract IRF coefficients and CI bands and collapse to dataframe
+    irf_to_df <- function(irf_obj) {
+        df <- purrr::map_df(names(irf_obj$irf), function(shock) {
+            irfs <- irf_obj$irf[[shock]]
+            lower <- irf_obj$Lower[[shock]]
+            upper <- irf_obj$Upper[[shock]]
+            
+            purrr::map_df(seq_len(ncol(irfs)), function(j) {
+                tibble::tibble(
+                    horizon = 0:(nrow(irfs) - 1),
+                    shock = shock,
+                    response = colnames(irfs)[j],
+                    coefficient = as.numeric(irfs[, j]),
+                    lower = as.numeric(lower[, j]),
+                    upper = as.numeric(upper[, j])
+                )
+            })
+        })
+        return(df)
+    }
+
+    out <- list(irf = irf_to_df(irf_out))
+
+    # generate plot of IRFs if required
+    if (plot == TRUE) {
+        chart <- ggplot(
+            data = out$irf, aes(x = horizon)
+        ) +
+            geom_hline(
+                yintercept = 0.0, linetype = "dashed"
+        ) +
+            geom_line(
+                aes(y = coefficient), linewidth = 1.2, color = "blue"
+        ) +
+            geom_line(
+                aes(y = lower), linewidth = 1.0, linetype = "dashed"
+        ) +
+            geom_line(
+                aes(y = upper), linewidth = 1.0, linetype = "dashed"
+        ) +
+            facet_wrap(~ response, ncol = 2, scales = "free_y"
+        ) +
+            theme(strip.text = element_text(size = 14, face = "bold")
+        )
+    
+        out$irf_chart <- chart
+    }
+    return(out)
+}
