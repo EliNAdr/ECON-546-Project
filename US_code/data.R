@@ -2,7 +2,7 @@ library(fredr)
 library(docstring)
 
 # set API key for FRED
-fredr_set_key("243ab59b7e8b76bd8bd9cd4c53e694d3")
+fredr_set_key("")
 
 ## --- Pulling data for the USA ---
 get_fred_data <- function(series, freq = c("m"), start, end) {
